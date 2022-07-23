@@ -1,0 +1,50 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes: 
+      - "E:\\docker_tmp\\nginx\\conf.d:/etc/nginx/conf.d"
+      - "E:\\docker_tmp\\nginx\\nginx.conf:/etc/nginx/nginx.conf"
+    ports:
+      - 8070:80
+    restart: always
+    networks:
+      - backend
+  node_server:
+    build: 
+      context: ./nodejs
+    image: node_server:latest
+    container_name: node_server
+    env_file: ./.env
+    ports: 
+      - 3000:3000
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=123456
+      - MYSQL_DB=todos
+      - DB_PORT=3306
+    depends_on:
+      - mysql
+    networks:
+      - backend
+    volumes:
+      - "E:\\docker_tmp\\nodejs:/app"
+  mysql:
+    image: mysql:5.7
+    container_name: my_sql
+    env_file: ./.env
+    volumes:
+      - "E:\\docker_tmp\\mysql_data:/var/lib/mysql"
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_DATABASE=todos
+      - MYSQL_ROOT_PASSWORD=123456
+    networks: 
+      - backend
+networks:
+  backend:
+    
